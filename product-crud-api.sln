@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "product-crud-api", "product-crud-api\product-crud-api.csproj", "{C80770A8-C80B-4D8C-8653-9C2934968084}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C80770A8-C80B-4D8C-8653-9C2934968084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80770A8-C80B-4D8C-8653-9C2934968084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C80770A8-C80B-4D8C-8653-9C2934968084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C80770A8-C80B-4D8C-8653-9C2934968084}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98B2A866-2CF0-4F63-AB87-3539918074E0}
+	EndGlobalSection
+EndGlobal
