@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using product_crud_api;
+using product_crud_api.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace product_crud_api.Models
+namespace product_crud_api.Infra.Models
 {
     public class Product
     {
