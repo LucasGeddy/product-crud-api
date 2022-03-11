@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using product_crud_api.API.DTO;
 using product_crud_api.Infra;
 using product_crud_api.Infra.Models;
 
@@ -17,9 +18,17 @@ namespace product_crud_api.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(int pageNumber = 1, int pageSize = 5) // Create request DTO to remove default page rules from controller
         {
-            return Ok(_context.Products.ToList());
+            var PagedData = new PagedResponse<IEnumerable<Product>>(
+                data: _context.Products
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList(),
+                pageNumber: pageNumber,
+                pageSize: pageSize);
+
+            return Ok(PagedData);
         }
 
         [HttpGet("{id}")]
