@@ -37,7 +37,7 @@ namespace product_crud_api.API.Controllers
             var productFromDb = await _context.Products.FindAsync(id);
 
             if (productFromDb == null)
-                return NotFound(new Response<Product>(productFromDb, false, "Product not found in database"));
+                return NotFound(new { ErrorMessage = "Product not found in database" });
 
             return Ok(new Response<Product>(productFromDb));
         }
@@ -46,19 +46,19 @@ namespace product_crud_api.API.Controllers
         public async Task<IActionResult> Create(Product product)
         {
             if (product.Id != 0)
-                return BadRequest(new Response<Product>(null, false,  "Please leave ID blank in order to create a product"));
+                return BadRequest(new { ErrorMessage = "Please leave ID blank in order to create a product" });
 
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            return Ok(new Response<Product>(product));
+            return Created("", new Response<Product>(product));
         }
 
         [HttpPut]
         public async Task<IActionResult> Edit(Product product)
         {
             if (product.Id == 0)
-                return BadRequest(new Response<Product>(null, false, "Please specify ID"));
+                return BadRequest(new { ErrorMessage = "Please specify ID" });
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
@@ -70,12 +70,12 @@ namespace product_crud_api.API.Controllers
         public async Task<IActionResult> Delete(Product product)
         {
             if (product.Id == 0)
-                return BadRequest(new Response<Product>(null, false, "Please specify ID"));
+                return BadRequest(new { ErrorMessage = "Please specify ID" });
 
             var productToDelete = await _context.Products.FindAsync(product.Id);
 
             if (productToDelete == null)
-                return BadRequest(new Response<Product>(productToDelete, false, "Product not found"));
+                return BadRequest(new { ErrorMessage = "Product not found" });
 
             _context.Remove(productToDelete);
             await _context.SaveChangesAsync();

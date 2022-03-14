@@ -5,7 +5,7 @@
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public int TotalPages { get; set; }
-        public PagedResponse(T data, int pageNumber, int pageSize, bool succeeded = true, string message = "") : base(data, succeeded, message)
+        public PagedResponse(T data, int pageNumber, int pageSize, string message = "") : base(data, message)
         {
             PageNumber = pageNumber;
             PageSize = pageSize;

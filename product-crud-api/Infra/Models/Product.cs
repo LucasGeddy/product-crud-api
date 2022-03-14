@@ -9,6 +9,7 @@ namespace product_crud_api.Infra.Models
         [MaxLength(500)]
         public string Name { get; set; }
         public string? Description { get; set; }
+        public string Lot { get; set; }
         [Precision(10,2)]
         public double Price { get; set; }
         public DateTime CreatedOn { get; set; }
