@@ -51,7 +51,7 @@ namespace product_crud_api.API.Controllers
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            return Created("", new Response<Product>(product));
+            return Created($"product/{product.Id}", new Response<Product>(product));
         }
 
         [HttpPut]
@@ -62,6 +62,8 @@ namespace product_crud_api.API.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+
+            HttpContext.Response.Headers.Location = $"product/{product.Id}";
 
             return Ok(new Response<Product>(product));
         }
