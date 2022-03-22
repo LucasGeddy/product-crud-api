@@ -11,7 +11,7 @@ namespace product_crud_api.Infra.Models
         public string? Description { get; set; }
         public string Lot { get; set; }
         [Precision(10,2)]
-        public double Price { get; set; }
+        public decimal Price { get; set; } 
         public DateTime CreatedOn { get; set; }
         public DateTime ModifiedOn { get; set; }
     }
