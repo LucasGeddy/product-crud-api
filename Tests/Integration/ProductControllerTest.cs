@@ -146,5 +146,35 @@ namespace Tests.Integration
             getProductContent.Data.Lot.Should().Be(editedProduct.Lot);
             getProductContent.Data.Price.Should().Be(editedProduct.Price);
         }
+        [Fact]
+        public async Task Delete_ValidProductId_ReturnsSuccessAndDatabaseIsEmpty()
+        {
+            //Arrange
+            var requestUri = "/product";
+            var productToAdd = new Product()
+            {
+                Name = "Test Product",
+                Description = "Description Test",
+                Lot = "666",
+                Price = 525.45m
+            };
+
+            //Act
+            var createProductResponse = await _client.PostAsync(requestUri,
+                new StringContent(JsonConvert.SerializeObject(productToAdd), UnicodeEncoding.UTF8, "application/json"));
+            var createProductContent = JsonConvert.DeserializeObject<Response<Product>>(await createProductResponse.Content.ReadAsStringAsync());
+            var deleteResponse = await _client.DeleteAsync($"{requestUri}/{createProductContent.Data.Id}");
+            var getAllResponse = await _client.GetAsync(requestUri);
+            var getAllContent = JsonConvert.DeserializeObject<PagedResponse<IEnumerable<Product>>>(await getAllResponse.Content.ReadAsStringAsync());
+
+            // Assert
+            createProductResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllContent.PageNumber.Should().Be(1);
+            getAllContent.PageSize.Should().Be(5);
+            getAllContent.Data.Count().Should().Be(0);
+
+        }
     }
 }
