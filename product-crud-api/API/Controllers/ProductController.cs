@@ -68,20 +68,21 @@ namespace product_crud_api.API.Controllers
             return Ok(new Response<Product>(product));
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Delete(Product product)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (product.Id == 0)
+            if (id == 0)
                 return BadRequest(new { ErrorMessage = "Please specify ID" });
 
-            var productToDelete = await _context.Products.FindAsync(product.Id);
+            var productToDelete = await _context.Products.FindAsync(id);
 
             if (productToDelete == null)
                 return BadRequest(new { ErrorMessage = "Product not found" });
 
             _context.Remove(productToDelete);
             await _context.SaveChangesAsync();
-            return Ok(new Response<Product>(productToDelete));
+
+            return Ok();
         }
 
     }
