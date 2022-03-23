@@ -24,6 +24,8 @@ namespace Tests.Integration
         private WebApplicationFactory<Program> _factory;
         private HttpClient _client; 
         private IConfiguration _config;
+        private Product _baseProduct;
+        private string _requestUri;
         public ProductControllerTest()
         {
             Setup();
@@ -51,10 +53,15 @@ namespace Tests.Integration
 
             _client = _factory.CreateClient();
 
-            using (var scope = _factory.Services.CreateScope())
+            _requestUri = "/product";
+
+            _baseProduct = new Product()
             {
-                scope.ServiceProvider.GetRequiredService<ApiDbContext>().Database.ExecuteSqlRaw("TRUNCATE TABLE Products");
-            }
+                Name = "Test Product",
+                Description = "Description Test",
+                Lot = "666",
+                Price = 525.45m
+            };
 
         }
         public void Dispose()
@@ -69,55 +76,37 @@ namespace Tests.Integration
         public async Task Get_EmptyDatabase_ReturnsEmptyList()
         {
             // Arrange
-            var requestUri = "/product?pageNumber=1&pageSize=5";
+            var requestUri = $"{_requestUri}?pageNumber=1&pageSize=5";
 
             // Act
-            var response = await _client.GetStringAsync(requestUri);
-            var content = JsonConvert.DeserializeObject<PagedResponse<IEnumerable<Product>>>(response);
+            var response = await _client.GetAsync(requestUri);
+            var content = JsonConvert.DeserializeObject<PagedResponse<IEnumerable<Product>>>(await response.Content.ReadAsStringAsync());
 
             // Assert
-            content.PageNumber.Should().Be(1);
-            content.PageSize.Should().Be(5);
-            content.Data.Count().Should().Be(0);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
         [Fact]
         public async Task Post_ValidProduct_ReturnsValidGetRoute()
         {
             //Arrange
-            var requestUri = "/product";
-            var productToAdd = new Product()
-            {
-                Name = "Test Product",
-                Description =  "Description Test",
-                Lot = "666",
-                Price = 525.45m
-            };
 
             //Act
-            var createProductResponse = await _client.PostAsync(requestUri, 
-                new StringContent(JsonConvert.SerializeObject(productToAdd), UnicodeEncoding.UTF8, "application/json"));
+            var createProductResponse = await _client.PostAsync(_requestUri, 
+                new StringContent(JsonConvert.SerializeObject(_baseProduct), UnicodeEncoding.UTF8, "application/json"));
             var getCreatedProductResponse = await _client.GetStringAsync(createProductResponse.Headers.Location);
             var getResponseContent = JsonConvert.DeserializeObject<Response<Product>>(getCreatedProductResponse);
 
             // Assert
             createProductResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            getResponseContent.Data.Name.Should().Be(productToAdd.Name);
-            getResponseContent.Data.Description.Should().Be(productToAdd.Description);
-            getResponseContent.Data.Lot.Should().Be(productToAdd.Lot);
-            getResponseContent.Data.Price.Should().Be(productToAdd.Price);
+            getResponseContent.Data.Name.Should().Be(_baseProduct.Name);
+            getResponseContent.Data.Description.Should().Be(_baseProduct.Description);
+            getResponseContent.Data.Lot.Should().Be(_baseProduct.Lot);
+            getResponseContent.Data.Price.Should().Be(_baseProduct.Price);
         }
         [Fact]
         public async Task Put_ValidProduct_ReturnsValidGetRouteAndEditedValues()
         {
             //Arrange
-            var requestUri = "/product";
-            var productToAdd = new Product()
-            {
-                Name = "Test Product",
-                Description = "Description Test",
-                Lot = "666",
-                Price = 525.45m
-            };
             var editedProduct = new Product()
             {
                 Id = 0,
@@ -130,13 +119,13 @@ namespace Tests.Integration
             };
 
             //Act
-            var createProductResponse = await _client.PostAsync(requestUri,
-                new StringContent(JsonConvert.SerializeObject(productToAdd), UnicodeEncoding.UTF8, "application/json"));
+            var createProductResponse = await _client.PostAsync(_requestUri,
+                new StringContent(JsonConvert.SerializeObject(_baseProduct), UnicodeEncoding.UTF8, "application/json"));
             var createdProductContent = JsonConvert.DeserializeObject<Response<Product>>(await createProductResponse.Content.ReadAsStringAsync());
             editedProduct.Id = createdProductContent.Data.Id;
-            var editProductResponse = await _client.PutAsync(requestUri,
+            var editProductResponse = await _client.PutAsync(_requestUri,
                 new StringContent(JsonConvert.SerializeObject(editedProduct), UnicodeEncoding.UTF8, "application/json"));
-            var getProductResponse = await _client.GetAsync(editProductResponse.Headers.Location);
+            var getProductResponse = await _client.GetAsync($"{_requestUri}/{createdProductContent.Data.Id}");
             var getProductContent = JsonConvert.DeserializeObject<Response<Product>>(await getProductResponse.Content.ReadAsStringAsync());
 
             // Assert
@@ -150,31 +139,19 @@ namespace Tests.Integration
         public async Task Delete_ValidProductId_ReturnsSuccessAndDatabaseIsEmpty()
         {
             //Arrange
-            var requestUri = "/product";
-            var productToAdd = new Product()
-            {
-                Name = "Test Product",
-                Description = "Description Test",
-                Lot = "666",
-                Price = 525.45m
-            };
 
             //Act
-            var createProductResponse = await _client.PostAsync(requestUri,
-                new StringContent(JsonConvert.SerializeObject(productToAdd), UnicodeEncoding.UTF8, "application/json"));
+            var createProductResponse = await _client.PostAsync(_requestUri,
+                new StringContent(JsonConvert.SerializeObject(_baseProduct), UnicodeEncoding.UTF8, "application/json"));
             var createProductContent = JsonConvert.DeserializeObject<Response<Product>>(await createProductResponse.Content.ReadAsStringAsync());
-            var deleteResponse = await _client.DeleteAsync($"{requestUri}/{createProductContent.Data.Id}");
-            var getAllResponse = await _client.GetAsync(requestUri);
+            var deleteResponse = await _client.DeleteAsync($"{_requestUri}/{createProductContent.Data.Id}");
+            var getAllResponse = await _client.GetAsync(_requestUri);
             var getAllContent = JsonConvert.DeserializeObject<PagedResponse<IEnumerable<Product>>>(await getAllResponse.Content.ReadAsStringAsync());
 
             // Assert
             createProductResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             deleteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            getAllResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            getAllContent.PageNumber.Should().Be(1);
-            getAllContent.PageSize.Should().Be(5);
-            getAllContent.Data.Count().Should().Be(0);
-
+            getAllResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace product_crud_api.API.Controllers
                 pageNumber: pageNumber,
                 pageSize: pageSize);
 
-            return Ok(pagedResponse);
+            return pagedResponse.Data.Count() > 0 ? Ok(pagedResponse) : NoContent();
         }
 
         [HttpGet("{id}")]
@@ -62,8 +62,6 @@ namespace product_crud_api.API.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
-
-            HttpContext.Response.Headers.Location = $"product/{product.Id}";
 
             return Ok(new Response<Product>(product));
         }
