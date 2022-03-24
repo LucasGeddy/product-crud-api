@@ -1,0 +1,43 @@
+﻿version: "3.4"
+services:
+  timesheets-api:
+    container_name: product-crud-api-testbound
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    environment:
+      - ConnectionStrings__ProductContext=Data Source=sql-server-database; Initial Catalog=ProductsCRUD; User Id=sa; Password=123StrongPass@
+    volumes:
+      - .:/product-crud-api
+    working_dir: /product-crud-api
+    depends_on:
+      - sql-server-database
+    command: "dotnet run"
+    ports:
+      - "8001:8081"
+  sql-server-database:
+    container_name: sql-server-database
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      SA_PASSWORD: 123StrongPass@
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+  integration-tests:
+    container_name: integration-tests
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    environment:
+      - ConnectionStrings__ProductContext=Data Source=sql-server-database; Initial Catalog=ProductsCRUD; User Id=sa; Password=123StrongPass@
+    volumes:
+      - .:/product-crud-api
+      - ../Tests:/Tests
+    working_dir: /product-crud-api
+    command:
+      [
+        "./wait-for-it.sh",
+        "sql-server-database:1433",
+        "--",
+        "dotnet",
+        "test",
+        "../Tests/Tests.csproj"
+      ]
+    depends_on:
+      - sql-server-database
