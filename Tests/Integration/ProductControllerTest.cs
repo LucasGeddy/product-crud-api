@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using product_crud_api.API.DTO;
 using System.Collections.Generic;
 using product_crud_api.Infra.Models;
-using System.Linq;
 using System.Text;
 
 namespace Tests.Integration
@@ -27,10 +26,6 @@ namespace Tests.Integration
         private Product _baseProduct;
         private string _requestUri;
         public ProductControllerTest()
-        {
-            Setup();
-        }
-        private async void Setup()
         {
             _config = new ConfigurationBuilder()
                     .AddJsonFile("appsettings.json")
@@ -62,7 +57,6 @@ namespace Tests.Integration
                 Lot = "666",
                 Price = 525.45m
             };
-
         }
         public void Dispose()
         {
@@ -146,7 +140,6 @@ namespace Tests.Integration
             var createProductContent = JsonConvert.DeserializeObject<Response<Product>>(await createProductResponse.Content.ReadAsStringAsync());
             var deleteResponse = await _client.DeleteAsync($"{_requestUri}/{createProductContent.Data.Id}");
             var getAllResponse = await _client.GetAsync(_requestUri);
-            var getAllContent = JsonConvert.DeserializeObject<PagedResponse<IEnumerable<Product>>>(await getAllResponse.Content.ReadAsStringAsync());
 
             // Assert
             createProductResponse.StatusCode.Should().Be(HttpStatusCode.Created);
